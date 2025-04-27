@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valet Bookings</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Fixed Header */
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-weight: bold;
+            top: 0;
+        }
+
+        .back-btn {
+            padding: 10px 15px;
+            background: #003366;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        .back-btn:hover {
+            background: #005599;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Booking Card */
+        .booking-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 1px;
+            transition: transform 0.3s ease;
+            margin-top: 30px;  /* Adjust for fixed header */
+        }
+
+        .booking-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .location, .service-type {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .status-dropdown select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            width: 100%;
+            max-width: 200px;
+            transition: background-color 0.3s ease;
+        }
+
+        .status-dropdown select:hover {
+            background-color: #e0e0e0;
+        }
+
+        .details-btn {
+            background: #003366;
+            color: white;
+            padding: 12px 15px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .details-btn:hover {
+            background: #005599;
+        }
+
+        /* Tabs */
+        .tabs button {
+            padding: 12px 18px;
+            margin-right: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: #f0f0f0;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 100%;  /* For mobile layout */
+            margin-bottom: 10px;
+        }
+
+        .tabs button:hover {
+            background-color: #d9d9d9;
+        }
+        .accept-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .accept-btn:hover {
+            background: #218838;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+            display: none;
+            color: #555;
+        }
+
+        .tab-content p {
+            margin: 10px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .booking-card {
+                padding: 15px;
+            }
+
+            .tabs button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .location, .service-type {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Header -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1000;">
+    
+            <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+    
+    <h1 style="flex-grow: 1; text-align: center; margin: 0;">Valet Bookings</h1>
+</div>
+
+    <!-- Booking Cards -->
+    {% for booking in bookings %}
+    <div class="booking-card">
+        <div class="header">
+            <div class="address-container">
+                <i class="fas fa-map-marker-alt"></i> <span id="distance-{{ booking.id }}">..</span> -
+                <a href="https://www.google.com/maps/search/?api=1&query={{ booking.address }}" target="_blank">{{ booking.address }}</a>
+            </div>
+        </div>
+
+        <div class="location"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ booking.location }}</div>
+        <div class="service-type"><i class="fas fa-concierge-bell"></i> <strong>Service Type:</strong> {{ booking.serviceType }}</div>
+
+        <div>
+            <button class="accept-btn" onclick="updateStatus('{{ booking.id }}', 'Accepted')">Accept Booking</button>
+            <button class="details-btn" onclick="toggleDetails('{{ booking.id }}')">Show Details</button>
+        </div>
+
+        <!-- Hidden Booking & Contact Details -->
+        <div class="details" id="details-{{ booking.id }}" style="display: none;">
+            <div class="tabs">
+                <button onclick="showTab('{{ booking.id }}', 'booking')">Booking Details</button>
+                
+            </div>
+
+            <div class="tab-content" id="booking-{{ booking.id }}">
+                <p><strong>Booking ID:</strong> {{ booking.bookingId }}</p>
+                <p><strong>Service Type:</strong> {{ booking.serviceType }}</p>
+                <p><strong>User ID:</strong> {{ booking.userId }}</p>
+                <p><strong>Timestamp:</strong> {{ booking.timestamp }}</p>
+                <p><strong>Status:</strong> {{ booking.status }}</p>
+            </div>
+
+            
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsElement = document.getElementById("details-" + bookingId);
+            // Toggle the display of details
+            if (detailsElement.style.display === "none" || detailsElement.style.display === "") {
+                detailsElement.style.display = "block";
+            } else {
+                detailsElement.style.display = "none";
+            }
+        }
+
+        function showTab(bookingId, tab) {
+            document.getElementById("booking-" + bookingId).style.display = tab === "booking" ? "block" : "none";
+            
+        }
+
+        function updateStatus(bookingId, newStatus) {
+            console.log("Updating status for Booking ID:", bookingId, "to", newStatus);
+
+            fetch(`/update_booking_status_gen/valet_bookings/`, {  // Ensure 'valet_bookings' is passed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data);
+                if (data.success) {
+                    Swal.fire(newStatus, "Booking status updated!", "success");
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+            });
+        }
+    </script>
+
+</body>
+</html>

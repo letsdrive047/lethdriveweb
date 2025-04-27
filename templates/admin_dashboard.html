@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-card {
+            border-radius: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .dashboard-card:hover {
+            transform: scale(1.02);
+        }
+        .card-icon {
+            font-size: 2.2rem;
+            color: #0d6efd;
+        }
+        .profile-card {
+            border-radius: 15px;
+        }
+        .admin-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+
+    <!-- Admin Profile -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <div class="card shadow profile-card text-center">
+                <div class="card-body">
+                    <a href="{% url 'employee_logout' %}" style="position: absolute; bottom: 0; width: 100%;"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    <span class="badge bg-primary">Super Admin</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <h2 class="text-center mb-4">Dashboard Actions</h2>
+    <div class="row g-4">
+
+        <!-- Register Employee -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">👤</div>
+                    <h5 class="card-title">Register Employee</h5>
+                    <a href="{% url 'register_employee' %}"  class="btn btn-outline-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Employees -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">📋</div>
+                    <h5 class="card-title">All Employees</h5>
+                    <a href="#" class="btn btn-outline-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Bookings -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">📆</div>
+                    <h5 class="card-title">All Bookings</h5>
+                    <a href="#" class="btn btn-outline-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valet Bookings -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">🚗</div>
+                    <h5 class="card-title">Valet Bookings</h5>
+                    <a href="#" class="btn btn-outline-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Reports -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">📊</div>
+                    <h5 class="card-title">Monthly Reports</h5>
+                    <a href="#" class="btn btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">🔔</div>
+                    <h5 class="card-title">Send Notifications</h5>
+                    <a href="#" class="btn btn-outline-primary">Send</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Management -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">🛡️</div>
+                    <h5 class="card-title">Manage Roles</h5>
+                    <a href="#" class="btn btn-outline-primary">Manage</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">⚙️</div>
+                    <h5 class="card-title">Settings</h5>
+                    <a href="#" class="btn btn-outline-secondary">Edit</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- More -->
+        <div class="col-md-4">
+            <div class="card dashboard-card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <div class="card-icon mb-2">➕</div>
+                    <h5 class="card-title">More Services</h5>
+                    <a href="#" class="btn btn-outline-secondary">Explore</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

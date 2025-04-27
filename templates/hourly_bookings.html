@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Bookings</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcKT3mX0ZVV35lmWy7LLaYg09TZlskOqU&libraries=places"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+            margin-top: 80px; /* Adjusted for fixed header */
+            transition: all 0.3s ease;
+        }
+
+        /* Fixed Header */
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            
+            padding: 10px 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            padding: 10px 10px;
+            background: #003366;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #005599;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Booking Card */
+        .booking-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .booking-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .booking-card .header strong {
+            color: #003366;
+            font-size: 18px;
+        }
+
+        .booking-card .details {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .booking-card .details p {
+            margin: 10px 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .booking-card .details p strong {
+            color: #333;
+        }
+
+        .accept-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .accept-btn:hover {
+            background: #218838;
+        }
+
+        .details-btn {
+            background: #003366;
+            color: white;
+            padding: 12px 15px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .details-btn:hover {
+            background: #005599;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-bar {
+                padding: 1px 15px;
+            }
+
+            .booking-card {
+                padding: 15px;
+            }
+
+            .booking-card .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .booking-card .header strong {
+                margin-bottom: 5px;
+            }
+        }
+        .address-container {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .address-container i {
+            margin-right: 8px;
+            color: #d9534f;
+        }
+        .address-container a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Header -->
+    <div class="header-bar">
+        <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+        <h1>Hourly Bookings</h1>
+    </div>
+
+    <!-- Booking Cards -->
+    {% for booking in bookings %}
+        {% if booking.status == 'Pending' %}
+        <div class="booking-card">
+            <div class="header">
+                <div class="address-container">
+                    <i class="fas fa-map-marker-alt"></i> <span id="distance-{{ booking.id }}">..</span> -
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ booking.address }}" target="_blank">{{ booking.address }}</a>
+                </div>
+                
+            
+            </div>
+            <div>
+                <strong>Schedule:</strong> {{ booking.startDate }} / {{ booking.startTime }}
+            </div>
+
+            <div>
+                <strong>Trip Type:</strong> 
+                {% if booking.roundTrip %}
+                    Round Trip
+                {% else %}
+                    One Way Trip
+                {% endif %}
+                &nbsp;&nbsp;
+                <strong>
+                    {% if booking.roundTrip %}
+                        Hours:
+                    {% else %}
+                        Distance:
+                    {% endif %}
+                </strong> 
+                {% if booking.roundTrip %}
+                    {{ booking.hours }}
+                {% else %}
+                    {{ booking.distance }}
+                {% endif %}
+            </div>
+
+            <div>
+                <button class="accept-btn" onclick="updateStatus('{{ booking.id }}', 'Accepted')">Accept Booking</button>
+                <button class="details-btn" onclick="toggleDetails('{{ booking.id }}')">Show Details</button>
+            </div>
+            <!-- Hidden Booking Details -->
+            <div class="details" id="details-{{ booking.id }}">
+                <p><strong>Booking ID:</strong> {{ booking.bookingId }}</p>
+                <p><strong>Timestamp:</strong> {{ booking.timestamp }}</p>
+                <p><strong>User ID:</strong> {{ booking.userId }}</p>
+                <p><strong>Round Trip:</strong> {{ booking.roundTrip }}</p>
+                <p><strong>Status:</strong> {{ booking.status }}</p>
+                <p><strong>Car Make:</strong> {{ booking.carMake }}</p>
+                <p><strong>Car Type:</strong> {{ booking.carType }}</p>
+                <p><strong>Amount:</strong> {{ booking.amount }}</p>
+                <p><strong>Payment Status:</strong> {{ booking.paymentStatus }}</p>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsElement = document.getElementById("details-" + bookingId);
+            detailsElement.style.display = detailsElement.style.display === "none" ? "block" : "none";
+        }
+
+        function updateStatus(bookingId, newStatus) {
+            console.log("Updating status for Booking ID:", bookingId, "to", newStatus);
+
+            fetch(`/update_booking_status_gen/hourly_bookings/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(newStatus, "Booking status updated!", "success");
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+            });
+        }
+
+        function calculateDistance(destination, elementId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    let origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    let service = new google.maps.DistanceMatrixService();
+
+                    service.getDistanceMatrix({
+                        origins: [origin],
+                        destinations: [destination],
+                        travelMode: 'DRIVING'
+                    }, (response, status) => {
+                        if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
+                            document.getElementById(elementId).textContent = response.rows[0].elements[0].distance.text;
+                        } else {
+                            document.getElementById(elementId).textContent = 'Distance not available';
+                        }
+                    });
+                });
+            } else {
+                document.getElementById(elementId).textContent = 'Geolocation not supported';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            {% for booking in bookings %}
+                calculateDistance("{{ booking.address }}", "distance-{{ booking.id }}");
+            {% endfor %}
+        });
+    </script>
+
+</body>
+</html>

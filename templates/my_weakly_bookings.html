@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>active weekly Bookings</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Fixed Header */
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            font-weight: bold;
+            top: 0;
+        }
+
+        .back-btn {
+            padding: 10px 15px;
+            background: #003366;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        .back-btn:hover {
+            background: #005599;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Booking Card */
+        .booking-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 1px;
+            transition: transform 0.3s ease;
+            margin-top: 30px;  /* Adjust for fixed header */
+        }
+
+        .booking-card:hover {
+            transform: translateY(-5px);
+        }
+        .accept-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .accept-btn:hover {
+            background: #218838;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .location, .service-type {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .status-dropdown select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            width: 100%;
+            max-width: 200px;
+            transition: background-color 0.3s ease;
+        }
+
+        .status-dropdown select:hover {
+            background-color: #e0e0e0;
+        }
+
+        .details-btn {
+            background: #003366;
+            color: white;
+            padding: 12px 15px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .details-btn:hover {
+            background: #005599;
+        }
+
+        /* Tabs */
+        .tabs button {
+            padding: 12px 18px;
+            margin-right: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: #f0f0f0;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 100%;  /* For mobile layout */
+            margin-bottom: 10px;
+        }
+
+        .tabs button:hover {
+            background-color: #d9d9d9;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+            display: none;
+            color: #555;
+        }
+
+        .tab-content p {
+            margin: 10px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .booking-card {
+                padding: 15px;
+            }
+
+            .tabs button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .location, .service-type {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Header -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1000;">
+    
+            <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+    
+    <h1 style="flex-grow: 1; text-align: center; margin: 0;">active weakly Bookings</h1>
+</div>
+
+    <!-- Booking Cards -->
+    {% for booking in bookings %}
+    <div class="booking-card">
+        <div class="header">
+            <div class="address-container">
+                <i class="fas fa-map-marker-alt"></i> <span id="distance-{{ booking.id }}">..</span> -
+                <a href="https://www.google.com/maps/search/?api=1&query={{ booking.address }}" target="_blank">{{ booking.address }}</a>
+            </div>
+        </div>
+        
+
+        <strong>start date:</strong> {{ booking.startDate }} <br>
+        <div>
+            {% if booking.roundTrip %}
+                <strong>:</strong> Round Trip
+            {% else %}
+                <strong>:</strong> One Way Trip
+            {% endif %}
+        
+            &nbsp; &nbsp;
+        
+            {% if booking.roundTrip %}
+                <strong>days:</strong> {{ booking.days }}
+            {% else %}
+                <strong>distance:</strong> {{ booking.distance }}
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 10px;">
+            {% if booking.roundTrip %}
+                <label><strong>Add Extra days:</strong></label>
+                <input type="number" min="0" id="extra-input-{{ booking.id }}" placeholder="e.g. 2" style="padding:5px; border-radius: 5px; width: 80px;">
+            {% else %}
+                <label><strong>Add Extra KM:</strong></label>
+                <input type="number" min="0" id="extra-input-{{ booking.id }}" placeholder="e.g. 15" style="padding:5px; border-radius: 5px; width: 80px;">
+            {% endif %}
+            <button onclick="calculateAddedAmount('{{ booking.id }}', {{ booking.roundTrip|yesno:'true,false' }}, {{ booking.amount }})" style="margin-left: 10px; padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Update Amount</button>
+        </div>
+        <div id="added-amount-{{ booking.id }}" style="margin-top: 5px; font-weight: bold; color: green;"></div>
+        
+        <div>
+            <div class="status-buttons">
+                {% if booking.status == "Accepted" %}
+                    <button id="status-btn-{{ booking.id }}" class="on-the-way" onclick="updateStatus('{{ booking.id }}', 'On the Way')">On the Way</button>
+                {% elif booking.status == "On the Way" %}
+                    <button id="status-btn-{{ booking.id }}" class="ongoing" onclick="updateStatus('{{ booking.id }}', 'Ongoing')">Ongoing</button>
+                {% elif booking.status == "Ongoing" %}
+                    <button id="status-btn-{{ booking.id }}" class="completed" onclick="updateStatus('{{ booking.id }}', 'Completed')">Completed</button>
+                {% else %}
+                    <button id="status-btn-{{ booking.id }}" disabled>Completed</button>
+                {% endif %}
+
+                {% if booking.status != "Completed" and booking.status != "Canceled" %}
+                    <button onclick="cancelBooking('{{ booking.id }}')" style="margin-top: 10px; background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                {% endif %}
+            </div>
+
+        
+            
+            <button class="details-btn" onclick="toggleDetails('{{ booking.id }}')">Show Details</button>
+        </div>
+
+        <!-- Hidden Booking & Contact Details -->
+        <div class="details" id="details-{{ booking.id }}" style="display: none;">
+            <div class="tabs">
+                <button onclick="showTab('{{ booking.id }}', 'booking')">Booking Details</button>
+                <button onclick="showTab('{{ booking.id }}', 'contact')">Contact Details</button>
+            </div>
+
+            <div class="tab-content" id="booking-{{ booking.id }}">
+                <p><strong>Booking ID:</strong> {{ booking.bookingId }}</p>
+                <p><strong>timestamp:</strong> {{ booking.timestamp }}</p>
+                <p><strong>User ID:</strong> {{ booking.userId }}</p>
+                <p><strong>roundTrip:</strong> {{ booking.roundTrip }}</p>
+                <p><strong>Status:</strong> {{ booking.status }}</p>
+                <p><strong>carMake:</strong> {{ booking.carMake }}</p>
+                <p><strong>carType:</strong> {{ booking.carType }}</p>
+                
+                <p><strong>amount:</strong> {{ booking.amount }}</p>
+                <p><strong>paymentStatus:</strong> {{ booking.paymentStatus }}</p>
+            </div>
+
+            <div class="tab-content" id="contact-{{ booking.id }}" style="display: none;">
+                <p><i class="fas fa-user"></i> <strong>Name:</strong> {{ booking.user.name }}</p>
+                <p>
+                    <i class="fas fa-phone"></i>
+                    <strong>Phone:</strong>
+                    <a href="tel:{{ booking.user.phone }}">{{ booking.user.phone }}</a>
+                </p>
+                
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> {{ booking.user.address }}</p>
+            </div>
+
+            
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsElement = document.getElementById("details-" + bookingId);
+            if (detailsElement) {
+                console.log("Toggling details for:", bookingId);
+                detailsElement.style.display = detailsElement.style.display === "none" || detailsElement.style.display === "" ? "block" : "none";
+            } else {
+                console.error("Element not found: details-" + bookingId);
+            }
+        }
+
+        function showTab(bookingId, tab) {
+            document.getElementById("booking-" + bookingId).style.display = tab === "booking" ? "block" : "none";
+            document.getElementById("contact-" + bookingId).style.display = tab === "contact" ? "block" : "none";
+        }
+
+        function updateStatus(bookingId, newStatus) {
+            console.log("Updating status for Booking ID:", bookingId, "to", newStatus);
+
+            fetch(`/update_booking_status_gen/weakly_bookings/`, {  // Ensure 'valet_bookings' is passed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data);
+                if (data.success) {
+                    Swal.fire(newStatus, "Booking status updated!", "success").then(() => {
+                        location.reload();  // Refresh the page after confirmation
+                    });
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+            });
+        }
+
+        function calculateDistance(destination, elementId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    let origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    let service = new google.maps.DistanceMatrixService();
+
+                    service.getDistanceMatrix({
+                        origins: [origin],
+                        destinations: [destination],
+                        travelMode: 'DRIVING'
+                    }, (response, status) => {
+                        if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
+                            document.getElementById(elementId).textContent = response.rows[0].elements[0].distance.text;
+                        } else {
+                            document.getElementById(elementId).textContent = 'Distance not available';
+                        }
+                    });
+                });
+            } else {
+                document.getElementById(elementId).textContent = 'Geolocation not supported';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            {% for booking in bookings %}
+                calculateDistance("{{ booking.address }}", "distance-{{ booking.id }}");
+            {% endfor %}
+        });
+
+        function calculateAddedAmount(bookingId, isRoundTrip, baseAmount) {
+            const input = document.getElementById(`extra-input-${bookingId}`);
+            const display = document.getElementById(`added-amount-${bookingId}`);
+            
+            if (!input || input.value === "") {
+                Swal.fire("Input Required", "Please enter extra hours or kilometers", "warning");
+                return;
+            }
+        
+            const extra = parseFloat(input.value);
+            if (isNaN(extra) || extra <= 0) {
+                Swal.fire("Invalid Input", "Please enter a valid positive number", "error");
+                return;
+            }
+        
+            const rate = isRoundTrip ? 520 : 10;
+            const addedAmount = extra * rate;
+            const totalAmount = baseAmount + addedAmount;
+        
+            fetch('/update_booking_amount/weakly_bookings/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    booking_id: bookingId,
+                    added_amount: addedAmount,
+                    total_amount: totalAmount,
+                    extra: extra
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    display.textContent = `Added ₹${addedAmount} | New Total: ₹${totalAmount}`;
+                    Swal.fire("Success", "Amount updated successfully", "success");
+                } else {
+                    Swal.fire("Error", data.message || "Failed to update", "error");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire("Error", "Something went wrong", "error");
+            });
+        }
+
+        function cancelBooking(bookingId) {
+            Swal.fire({
+                title: 'Cancel Booking?',
+                input: 'select',
+                inputOptions: {
+                    'Call not picked': 'Call not picked',
+                    'Customer denied': 'Customer denied',
+                    'Wrong address': 'Wrong address',
+                    'Other': 'Other'
+                },
+                inputPlaceholder: 'Select a reason',
+                showCancelButton: true,
+                confirmButtonText: 'Cancel Booking',
+                cancelButtonText: 'Dismiss',
+                preConfirm: (reason) => {
+                    if (!reason) {
+                        Swal.showValidationMessage('Please select a reason');
+                    }
+                    return reason;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    fetch(`/update_booking_status_gen/weakly_bookings/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            booking_id: bookingId,
+                            status: 'Canceled',
+                            reason: result.value
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Canceled", "Booking has been canceled", "success").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire("Error", data.message || "Failed to cancel booking", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire("Error", "Something went wrong", "error");
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

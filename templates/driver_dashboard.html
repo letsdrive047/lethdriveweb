@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Drive</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #343a40;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+        .sidebar a {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #575d63;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #343a40;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+        }
+        .openbtn:hover {
+            background-color: #575d63;
+        }
+        .top-bar {
+            background-color: #343a40;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 999;
+        }
+        .top-bar .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .top-bar .status-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .main-content {
+            margin-top: 60px;
+            padding: 20px;
+            transition: margin-left 0.5s;
+        }
+        .icon-button {
+            text-align: center;
+            margin: 10px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .icon-button:hover {
+            transform: scale(1.05);
+        }
+        .icon-button i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+        .icon-button p {
+            font-size: 16px;
+            margin: 0;
+            color: #343a40;
+        }
+        @media (max-width: 768px) {
+            .icon-button {
+                padding: 15px;
+            }
+            .icon-button i {
+                font-size: 30px;
+            }
+            .icon-button p {
+                font-size: 14px;
+            }
+            .sidebar a {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .sidebar-open .main-content {
+            margin-left: 250px;
+        }
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #343a40;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .fab:hover {
+            background-color: #575d63;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div>
+            <button class="openbtn" onclick="toggleSidebar()">&#9776;</button>
+            <span class="logo">Let's Drive</span>
+        </div>
+        <button class="status-btn" id="statusBtn">Online</button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">&times;</a>
+        <a href="{% url 'driver_profile' %}"><i class="fas fa-user"></i> Account Details</a>
+        <a href="{% url 'my_bookings' %}"><i class="fas fa-calendar-check"></i> my all bookings</a>
+        <a href="#"><i class="fas fa-chart-line"></i> Performance</a>
+        <a href="#"><i class="fas fa-money-bill-wave"></i> Earnings</a>
+        <a href="#"><i class="fas fa-car"></i> Trips</a>
+        <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="#"><i class="fas fa-info-circle"></i> About</a>
+        <a href="{% url 'employee_logout' %}" style="position: absolute; bottom: 0; width: 100%;"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="icon-button" onclick="window.location.href='/hourly_bookings/'" style="cursor: pointer;">
+                        <i class="fas fa-clock"></i>
+                        <p>Hourly Bookings</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="icon-button" onclick="window.location.href='/weakly_bookings/'" style="cursor: pointer;">
+                        <i class="fas fa-calendar-week"></i>
+                        <p>Weekly Bookings</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="icon-button" onclick="window.location.href='/monthly_bookings/'" style="cursor: pointer;">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>Monthly Bookings</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <div class="icon-button" onclick="window.location.href='/velet_bookings/'" style="cursor: pointer;">
+                        <i class="fas fa-parking"></i>
+                        <p>Vetet Bookings</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="icon-button" onclick="window.location.href='/driving_class_bookings/'" style="cursor: pointer;">
+                        <i class="fas fa-car-side"></i>
+                        <p>Driving Class Bookings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fab" onclick="window.location.href='/my_current_booking/'">
+        <i class="fas fa-calendar-check"></i>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            const mainContent = document.getElementById("mainContent");
+
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+                overlay.style.display = "none";
+                mainContent.classList.remove("sidebar-open");
+            } else {
+                sidebar.style.left = "0px";
+                overlay.style.display = "block";
+                mainContent.classList.add("sidebar-open");
+            }
+        }
+
+        const statusBtn = document.getElementById("statusBtn");
+        statusBtn.addEventListener("click", function() {
+            if (statusBtn.textContent === "Online") {
+                statusBtn.textContent = "Offline";
+                statusBtn.style.backgroundColor = "#dc3545";
+            } else {
+                statusBtn.textContent = "Online";
+                statusBtn.style.backgroundColor = "#28a745";
+            }
+        });
+    </script>
+</body>
+</html>

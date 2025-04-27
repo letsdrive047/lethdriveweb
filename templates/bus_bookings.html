@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Bookings</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .booking-card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .status-dropdown select { padding: 5px; }
+        .location { font-size: 16px; margin: 10px 0; }
+        .location i { margin-right: 10px; color: #007BFF; }
+        .details-btn { 
+            background: black; 
+            color: white; 
+            padding: 10px; 
+            width: 100%; 
+            border: none; 
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .details { display: none; margin-top: 15px; }
+        .tabs button { padding: 8px; margin-right: 10px; cursor: pointer; border: none; background: #eee; }
+        .tab-content { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1000;">
+    
+    <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+    
+    <h1 style="flex-grow: 1; text-align: center; margin: 0;">Bus Bookings</h1>
+
+    <br>
+    
+    <a href="{% url 'employee_logout' %}" 
+   style="padding: 10px 15px; border: none; background: red; 
+          color: white; cursor: pointer; border-radius: 5px; 
+          position: absolute; top: 10px; right: 20px;">
+   <i class="fas fa-sign-out-alt"></i> Sign Out
+</a>
+    
+
+    
+</div>
+
+
+<!-- Add margin to body so content is not hidden under the fixed header -->
+<style>
+    body { 
+        margin-top: 60px; /* Adjust based on header height */
+    }
+</style>
+    
+
+    
+    
+    {% for booking in bookings %}
+    <div class="booking-card">
+        <div><small><strong>Timestamp:</strong> {{ booking.timestamp }}</small></div>
+
+        <div class="header">
+            <div><strong>Trip Date: {{ booking.tripDate|slice:":10" }}</strong></div>
+            <div class="status-dropdown">
+                <select onchange="updateStatus('{{ booking.id }}', this.value)">
+                    <option value="Pending" {% if booking.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Accepted" {% if booking.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                    <option value="On the Way" {% if booking.status == 'On the Way' %}selected{% endif %}>On the Way</option>
+                    <option value="Ongoing" {% if booking.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="Completed" {% if booking.status == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+        </div>
+        <div class="location"><i class="fas fa-map-marker-alt"></i> <strong>Origin:</strong> {{ booking.origin }}</div>
+        <div class="location"><i class="fas fa-location-arrow"></i> <strong>Destination:</strong> {{ booking.destination }}</div>
+        <button class="details-btn" onclick="toggleDetails('{{ booking.id }}')">Show Details</button>
+        
+        <div class="details" id="details-{{ booking.id }}">
+            <div class="tabs">
+                <button onclick="showTab('{{ booking.id }}', 'booking')">Booking Details</button>
+                <button onclick="showTab('{{ booking.id }}', 'contact')">Contact Details</button>
+            </div>
+            
+            <div class="tab-content" id="booking-{{ booking.id }}">
+                <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+                <p><strong>Booking Type:</strong> {{ booking.bookingType }}</p>
+                <p><strong>User ID:</strong> {{ booking.userId }}</p>
+                <p><strong>Trip Date:</strong> {{ booking.tripDate }}</p>
+                <p><strong>Timestamp:</strong> {{ booking.timestamp }}</p>
+                <p><strong>Status:</strong> {{ booking.status }}</p>
+                <p><strong>Passengers:</strong> {{ booking.passengers }}</p>
+                <p><strong>Number of Buses:</strong> {{ booking.numberOfBuses }}</p>
+                <p><strong>Bus Type:</strong> {{ booking.busType }}</p>
+                <p><strong>Bus Category:</strong> {{ booking.busCategory }}</p>
+            </div>
+            
+            <div class="tab-content" id="contact-{{ booking.id }}" style="display: none;">
+                <p><i class="fas fa-user"></i> <strong>Name:</strong> {{ booking.user.name }}</p>
+                <p><i class="fas fa-phone"></i> <strong>Phone:</strong> {{ booking.user.phone }}</p>
+                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> {{ booking.user.email }}</p>
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Address:</strong> {{ booking.user.address }}</p>
+            </div>
+        </div>
+    </div>
+    
+    {% endfor %}
+
+
+    
+    
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsElement = document.getElementById("details-" + bookingId);
+            if (detailsElement) {
+                console.log("Toggling details for:", bookingId);
+                detailsElement.style.display = detailsElement.style.display === "none" || detailsElement.style.display === "" ? "block" : "none";
+            } else {
+                console.error("Element not found: details-" + bookingId);
+            }
+        }
+        
+        function showTab(bookingId, tab) {
+            document.getElementById("booking-" + bookingId).style.display = tab === "booking" ? "block" : "none";
+            document.getElementById("contact-" + bookingId).style.display = tab === "contact" ? "block" : "none";
+        }
+        
+        function updateStatus(bookingId, newStatus) {
+            console.log("Updating status for Booking ID:", bookingId, "to", newStatus);
+
+            fetch(`/update_booking_status_gen/bus_bookings/`, {  // Ensure 'valet_bookings' is passed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data);
+                if (data.success) {
+                    Swal.fire(newStatus, "Booking status updated!", "success");
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+            });
+        }
+    </script>
+
+    
+
+</body>
+
+</html>

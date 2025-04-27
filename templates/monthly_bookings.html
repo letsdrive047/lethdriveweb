@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Bookings</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .booking-card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .accept-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .accept-btn:hover {
+            background: #218838;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .status-dropdown select { padding: 5px; }
+        .details-btn { 
+            background: black; 
+            color: white; 
+            padding: 10px; 
+            width: 100%; 
+            border: none; 
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .details { display: none; margin-top: 15px; }
+        .tabs button { padding: 8px; margin-right: 10px; cursor: pointer; border: none; background: #eee; }
+        .tab-content { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 0; left: 0; width: 100%; background: white; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); z-index: 1000;">
+            <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+        <h1 style="flex-grow: 1; text-align: center; margin: 0;">Monthly Bookings</h1>
+    </div>
+
+    <style>
+        body { 
+            margin-top: 60px; /* Adjust based on header height */
+        }
+    </style>
+
+    {% for booking in bookings %}
+        {% if booking.status == 'Pending' %}
+        <div class="booking-card">
+            <div class="header">
+                <div><small><strong>Timestamp:</strong> {{ booking.timestamp|slice:":10" }}</small></div>
+            </div>
+
+            <!-- Show only essential fields initially -->
+            <div class="address-container">
+                <i class="fas fa-map-marker-alt"></i> <span id="distance-{{ booking.id }}">..</span> -
+                <a href="https://www.google.com/maps/search/?api=1&query={{ booking.address }}" target="_blank">{{ booking.address }}</a>
+            </div>
+            <div><strong>Duration:</strong> {{ booking.duration }}</div>
+            <div><strong>Days Per Week:</strong> {{ booking.daysPerWeek }}</div>
+            
+
+            <div>
+                <button class="accept-btn" onclick="updateStatus('{{ booking.id }}', 'Accepted')">Accept Booking</button>
+                <button class="details-btn" onclick="toggleDetails('{{ booking.id }}')">Show Details</button>
+            </div>
+
+            <!-- Booking details and contact details (Initially hidden) -->
+            <div class="details" id="details-{{ booking.id }}">
+                <div class="tabs">
+                    <button onclick="showTab('{{ booking.id }}', 'booking')">Booking Details</button>
+                    
+                </div>
+                
+                <!-- Booking details -->
+                <div class="tab-content" id="booking-{{ booking.id }}">
+                    <p><strong>Booking ID:</strong> {{ booking.bookingId }}</p>
+                    <p><strong>Car Make:</strong> {{ booking.carMake }}</p>
+                    <p><strong>Car Model:</strong> {{ booking.carModel }}</p>
+                    <p><strong>Car Type:</strong> {{ booking.carType }}</p>
+                    <p><strong>Class Option:</strong> {{ booking.classOption }}</p>
+                    <p><strong>Phone Number:</strong> {{ booking.phoneNumber }}</p>
+                </div>
+                
+                <!-- Contact details -->
+                
+            </div>
+        </div>
+        {% endif %} 
+    {% endfor %}
+
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsElement = document.getElementById("details-" + bookingId);
+            if (detailsElement) {
+                detailsElement.style.display = detailsElement.style.display === "none" || detailsElement.style.display === "" ? "block" : "none";
+            }
+        }
+        
+        function showTab(bookingId, tab) {
+            document.getElementById("booking-" + bookingId).style.display = tab === "booking" ? "block" : "none";
+            document.getElementById("contact-" + bookingId).style.display = tab === "contact" ? "block" : "none";
+        }
+        
+        function updateStatus(bookingId, newStatus) {
+            fetch(`/update_booking_status_gen/monthly bookings/`, {  // Adjust URL if needed
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(newStatus, "Booking status updated!", "success");
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+            });
+        }
+    </script>
+</body>
+</html>
