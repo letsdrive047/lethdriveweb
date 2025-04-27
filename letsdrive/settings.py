@@ -2,6 +2,10 @@
 import os
 import firebase_admin
 from firebase_admin import credentials
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Define the base directory of your Django project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
